@@ -43,7 +43,7 @@ In order to have admin abilities on a Valheim Dedicated Server, you will have to
 <br />
 <br />
 
-- Click on the website link here to download the needed Valheim Admin mod ZIP folder --> [Valheim Admin Mod](https://github.com/CityHallin/valheim_server/raw/main/client_mods/valheim-main.zip). 
+- Click on the website link here to download the needed Valheim Admin mod ZIP folder --> [Valheim Admin Mod](https://github.com/CityHallin/public/blob/main/projects/valheim/client_mods/valheim-main.zip). 
 
 <img src="./readme-files/gh1.png" width="500px">
 <br />
