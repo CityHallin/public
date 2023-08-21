@@ -6,9 +6,9 @@
 4. [Texxmo Setup](#texxmosetup)
 
 ## Overview <a name="overview"></a>
-This project demonstrates how HTTP calls from IoT devices can be used to interact with Azure resources. In this project, I will be using the [Texxmo IoT Wifi button](https://www.texxmo.info/iot-buttons/) as it is just a button that sends HTTP POST calls with JSON payloads for demonstration situations. At the push of a button, it will trigger an Azure Function App that will build a simple Azure User-Managed Identity in an Azure Resource Group. In production situations, IoT devices can be used to trigger alerts, Azure Function Apps to perform a number of actions, and really anything that can be scripted. 
+This project demonstrates how HTTP calls from IoT devices can be used to interact with Azure resources. In daily use, IoT devices can be used to trigger alerts, Azure Function Apps to perform a number of actions automatically, and really anything that can be scripted. In this project, I will be using the [Texxmo IoT Wifi button](https://www.texxmo.info/iot-buttons/) as it is just a button that sends HTTP POST calls with JSON payloads for demonstration situations. At the push of a button, it will trigger an Azure Function App that will build a simple Azure User-Managed Identity in an Azure Resource Group. This demonstration project will be using some security aspects like TLS, a simple JSON payload claim check, and access keys. In production situations, more security features can be used like certificates, network restrictions, gateways, etc. 
 
-Feel free to copy or clone this [Public](https://github.com/CityHallin/public) Repo. Navigate to the .\public\projects\iot_button folder for sample files. 
+Feel free to copy or clone this [Public](https://github.com/CityHallin/public) Repo. Navigate to the .\public\projects\iot_button folder for sample files. All Azure Resources, access keys, etc. in this demo have already been removed or reset.
 
 
 ## Requirements <a name="requirements"></a>
