@@ -59,28 +59,49 @@ West US          westus
 West US 2        westus2
 West US 3        westus3
 ```
-6. Run the following to create a new Azure Resource Group for this project. I will use the name **iot** for this exmaple.
+6. First, we need to create some variables our PowerShell will use during the project. I have filled these out with the entries I will use as an example, but replace these with your own entries. The last command will create a new Azure Resource Group for this project. 
 
 ```
-New-AzResourceGroup -Name "iot" -Location "southcentralus"
+#Replace variables below with your own entry. 
+#Azure Resource Group name
+$resourceGroupName = "iot"
+
+#Azure Region selected from above
+$region = "southcentralus"
+
+#Azure IoT Hub Instance name. Needs to be a globally unique
+$iotHubName = "cityhalliniot"
+
+#Azure Storage Acocunt name. Needs to be a globally unique 
+#name no one else has. Only alphanumeric characters.
+$stortageAccountName = "cityhalliniotsa"
+
+#Azure Function App name. Needs to be a globally unique name no one else has. 
+$functionAppName = "cityhallinfa"
+
+#Creates Azure Resource Group
+New-AzResourceGroup -Name $resourceGroupname -Location $region
 ```
-7. Run the following to create an Azure IoT Hub that will be used to receive messages from your physical IoT device. The name of the Azure IoT Hub must be something globally unique that no one else has in use. I am going to name my Azure IoT Hub **cityhalliniot** for this example.
+7. Run the following to create an Azure IoT Hub that will be used to receive messages from your physical IoT device. The name of the Azure IoT Hub must be something globally unique that no one else has in use.
 ```
-New-AzIotHub -ResourceGroupName "iot" `
- -Name "cityhalliniot" `
+#Create Azure IoT Hub Instance
+New-AzIotHub -ResourceGroupName $resourceGroupName `
+ -Name $iotHubName `
  -SkuName "F1" `
  -Units 1 `
- -Location "southcentralus"
+ -Location $region
 ```
 
 8. Run the following to fetch the FQDN hostname of your newly created IoT Hub. Keep this FQDN hostname info as we will use it later.
 ```
-(Get-AzIotHub -ResourceGroupName "iot" -Name "cityhalliniot" | Select-Object -ExpandProperty Properties).HostName
+#Gather Azure IoT Hub Info
+(Get-AzIotHub -ResourceGroupName $resourceGroupName -Name $iotHubName | Select-Object -ExpandProperty Properties).HostName
 ```
-9. Run the following to create a device profile in your Azure IoT Hub. After it is created, you will see the new device profile in your Azure IoT Hub Device menu list. Clicking into the device will allow you to access the device keys needed for the device to authenticate to your Azure IoT Hub. Take note of the **Device ID** and its **Primary Key** as we will need these later.
+9. Run the following to create a device profile in your Azure IoT Hub called **button1**. After it is created, you will see the new device profile in your Azure IoT Hub Device menu list. Clicking into the device will allow you to access the device keys needed for the device to authenticate to your Azure IoT Hub. Take note of the **Device ID** and its **Primary Key** as we will need these later.
 ```
-Add-AzIotHubDevice -ResourceGroupName "iot" `
- -IotHubName "cityhalliniot" `
+#Create a device profile in your Azure IoT Hub Instance
+Add-AzIotHubDevice -ResourceGroupName $resourceGroupName `
+ -IotHubName $iotHubName `
  -DeviceId "button1" `
  -AuthMethod "shared_private_key" `
  -EdgeEnabled
@@ -104,55 +125,53 @@ Add-AzIotHubDevice -ResourceGroupName "iot" `
 ```    
 
 11. Once your IoT button is set up, when we press that button, we need it to trigger some sort of action. For this project, we will create an Azure Function App that will perform a simple demonstration task of creating an Azure User-Managed Identity. Use the commands below to:
-    - Create a new Azure Storage Account. The name needs to be globally unique so for this example I will name it **cityhalliniotsa**. Make sure you add the name you chose to the code below. 
-    - Create an Azure Function App that will use the Storage Account. The name needs to be globally unique so for this example I will name it **cityhallinfa**. Make sure you add the name you chose to the code below. 
-    - Setup a System-Managed Identity on the Azure Function App and assign it the Contributor role on the Azure Resource Group we created. This will be needed so it create other resources in the Resource Group. 
-    - **Make sure to use your names for your Azure IoT Hub and Resource Group.**    
-    
+    - Create a new Azure Storage Account.
+    - Create an Azure Function App that will use the Storage Account.
+    - Setup a System-Managed Identity on the Azure Function App and assign it the Contributor role on the Azure Resource Group we created. This will be needed so the Function App can create other resources in your Resource Group.    
 
 ```
 #Create Storage Account
 New-AzStorageAccount `
-    -Name "cityhalliniotsa" `
-    -ResourceGroupName "iot" `
-    -Location "southcentralus" `
+    -Name $stortageAccountName `
+    -ResourceGroupName $resourceGroupName `
+    -Location $region `
     -SkuName Standard_LRS
 
 #Create Azure Function App
 New-AzFunctionApp `
-    -Name "cityhallinfa" `
-    -ResourceGroupName "iot" `
-    -Location "southcentralus" `
-    -StorageAccountName "cityhalliniotsa" `
+    -Name $functionAppName `
+    -ResourceGroupName $resourceGroupName `
+    -Location $region `
+    -StorageAccountName $stortageAccountName `
     -Runtime PowerShell
 
 #Enable Managed ID on Function App
 Update-AzFunctionApp `
-    -Name "cityhallinfa" `
-    -ResourceGroupName "iot" `
+    -Name $functionAppName `
+    -ResourceGroupName $resourceGroupName `
     -IdentityType SystemAssigned `
     -Force
 
 #Get IoT Hub Information
 $iotHubInfo = Get-AzIotHub
 $iotHubKey = Get-AzIotHubKey `
-    -ResourceGroupName "iot" `
-    -Name "cityhalliniot" `
+    -ResourceGroupName $resourceGroupName `
+    -Name $iotHubName `
     -KeyName "iothubowner"
 
 #Create app setting for IoT Hub Connection in Function App
 Update-AzFunctionAppSetting `
-    -Name "cityhallinfa" `
-    -ResourceGroupName "iot" `
+    -Name $functionAppName `
+    -ResourceGroupName $resourceGroupName `
     -AppSetting @{"iot_hub_connection" = "Endpoint=$($iotHubInfo.Properties.EventHubEndpoints.Values.Endpoint)/;SharedAccessKeyName=$($iotHubKey.KeyName);SharedAccessKey=$($iotHubKey.PrimaryKey);EntityPath=$($iotHubInfo.Properties.EventHubEndpoints.Values.Path)"}
 
 #Add Function App Managed ID to Contributor 
 #role on Resource Group
-$functionAppResource = Get-AzResource -Name "cityhallinfa" -ResourceGroupName "iot" -ResourceType "Microsoft.Web/sites"
+$functionAppResource = Get-AzResource -Name $functionAppName -ResourceGroupName $resourceGroupName -ResourceType "Microsoft.Web/sites"
 New-AzRoleAssignment `
     -ObjectId $($functionAppResource.Identity.PrincipalId) `
     -RoleDefinitionName Contributor `
-    -ResourceGroupName "iot"
+    -ResourceGroupName $resourceGroupName
 ```
 
 12. Run the following commands which will auto-create a new function project folder with supporting files, navigate inside that project folder, and create the needed PowerShell function files. 
@@ -170,7 +189,7 @@ func new --name iotfunction --template "IoT Hub (Event Hub)"
 13. Inside the .\function_project\iotfunction folder, you'll see a **run.ps1** file. Update this run.ps1 file with the following and save it. This PowerShell script is the heart of your function and actually does the work of receiveing the trigger data from Azure IoT Hub and building the Azure User-Managed Identity.
 
   
-    **Make sure to update this script on line 19 with your Resource Group name and line 21 with your region you chose. I am using my Resource Group name of "iot" nand location "southcentralus" for this example.**
+    **Make sure to update this script on line 19 with your Resource Group name and line 21 with your region you chose. I am using my Resource Group name of "iot" and location "southcentralus" for this example.**
 ```
 #Parameters
 param($IoTHubMessages, $TriggerMetadata)
@@ -233,7 +252,7 @@ Write-Output "User-Managed Identity created: $($umi.name)"
 cd function_project
 
 #Push code to the Azure Function App
-func azure functionapp publish "cityhallinfa" 
+func azure functionapp publish $functionAppName
 ```
 
 17. Everything should be configured. We can now test out the IoT button functionality. Navigate to your Azure Function App and click on the newly made function. 
