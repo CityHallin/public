@@ -41,6 +41,7 @@ https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.github
 ```
 5. Put that all together and you should be able to click on the Azure Deployment Button below.
 <br />
+
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FCityHallin%2Fpublic%2Fmain%2Fresources%2Fazure%2Fbutton_deployment%2Ftemplates%2Ftemplate.json)
 
 6. When the button is clicked, you will be taken to https://portal.azure.com/ where you'll need to sign in with your Microsoft login that has access to your Azure Tenant. You'll be taken to the Custom Deployment page where you can select your Subscription, Resource Group, location, and any other parameters allowed by the template. Than click the **Review + Create button** to kick off the deployment. 
@@ -50,6 +51,7 @@ https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.github
 <br />
 
 7. If you have other images that are publically visible with a URL, those can used as well. 
+<br />
 
 [![Deploy to Azure](https://github.com/CityHallin/public/blob/main/resources/azure/button_deployment/readme-files/yeet_to_cloud_small.png?raw=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FCityHallin%2Fpublic%2Fmain%2Fresources%2Fazure%2Fbutton_deployment%2Ftemplates%2Ftemplate.json)
 
