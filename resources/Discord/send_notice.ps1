@@ -4,20 +4,19 @@
     Discord Webhook Notifications
 
     .DESCRIPTION
-    This PowerShell script is meant to run inside Azure Automation Account Runbooks
-    used to send HTTP trigger to a Discord server webhook endpoint in order to send
-    messages to a Discord server channel. 
+    This PowerShell script is meant to run inside an Azure Automation Account Runbook
+    used to send message posts to a Discord server channel webhook. 
            
 #>
 
 #Get Discord URI from Automation Account variables
-#Must create Discord server Webhook for URI endpoint first
+#Must create Discord server webhook first
 $discordWebhook = Get-AutomationVariable -Name "DiscordAutoMessenger"
 
-#Create Message Payload
+#Create message payload
 Write-output "Create Message Payload"
 $content = @"
-Valheim Server will shutdown for maintenance from 8:00am - 8:30am CST. This will start in a few minutes. 
+Text that will be sent as a Discord message post. 
 "@
 
 $payload = [PSCustomObject]@{
@@ -26,9 +25,9 @@ $payload = [PSCustomObject]@{
 
 $body = $payload | ConvertTo-Json
 
-#Send Message Payload
+#Send message payload
 Write-output "Send Message"
 $result = Invoke-WebRequest -uri $discordWebhook -Method POST -Body $body -Headers @{'Content-Type' = 'application/json'}
 
-#Send Status
+#Send status
 Write-output "Send Status Code: $($result.StatusCode)"
