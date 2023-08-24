@@ -50,7 +50,7 @@ https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.github
 <br />
 <br />
 
-7. If you have other images that are publically visible with a URL, those can used as well. 
+7. If you have other images that are publically visible with a URL, those can be used as well. 
 <br />
 
 [![Deploy to Azure](https://github.com/CityHallin/public/blob/main/resources/azure/button_deployment/readme-files/yeet_to_cloud_small.png?raw=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FCityHallin%2Fpublic%2Fmain%2Fresources%2Fazure%2Fbutton_deployment%2Ftemplates%2Ftemplate.json)
