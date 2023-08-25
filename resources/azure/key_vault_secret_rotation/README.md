@@ -36,7 +36,7 @@ Install-Module -Name Az
 
 - Run the following to log into your Azure Subscription.
 ```powershell
-Connect-AzAccount -SubscriptionName "ENTER YOUR SUBSCRIPTION NAME HERE"
+$loginContext = Connect-AzAccount -SubscriptionName "ENTER YOUR SUBSCRIPTION NAME HERE"
 ```
 - Choose an Azure region you'd like to deploy these project Azure resources into. In this example, I will be using **South Central US**. A list of US regions are below. Use your selected region for all of your deplopyments in this project to keep things simple. 
 
