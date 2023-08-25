@@ -189,7 +189,7 @@ func new --name iotfunction --template "IoT Hub (Event Hub)"
 13. Inside the .\function_project\iotfunction folder, you'll see a **run.ps1** file. Update this run.ps1 file with the following and save it. This PowerShell script is the heart of your function and actually does the work of receiveing the trigger data from Azure IoT Hub and building the Azure User-Managed Identity.
 
   
-    **Make sure to update this script on line 19 with your Resource Group name and line 21 with your region you chose. I am using my Resource Group name of "iot" and location "southcentralus" for this example.**
+    > **Make sure to update this script on line 19 with your Resource Group name and line 21 with your region you chose. I am using my Resource Group name of "iot" and location "southcentralus" for this example.**
 ```powershell
 #Parameters
 param($IoTHubMessages, $TriggerMetadata)
