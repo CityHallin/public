@@ -194,7 +194,7 @@ Set-AzKeyVaultSecret -VaultName $keyVaultName -Name $keyVaultSecretName -SecretV
 #Add additional code here to apply this new secret to other apps or resources
 <#  Additional Code  #>
 ```
-- Inside the .\function_project\kfunction folder, you'll see a **function.json** file. Update this function.json file with the following and save it. The schedule attribute is used to trigger this function at certain times (below is triggering this at 11:00pm on the 1st of every month). Review the Microsoft [Azure Trigger docs](https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer?tabs=python-v2%2Cin-process&pivots=programming-language-powershell#ncrontab-expressions) for more information on how to set this. 
+- Inside the .\function_project\kvfunction folder, you'll see a **function.json** file. Update this function.json file with the following and save it. The schedule attribute is used to trigger this function at certain times (below is triggering this at 11:00pm on the 1st of every month). Review the Microsoft [Azure Trigger docs](https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer?tabs=python-v2%2Cin-process&pivots=programming-language-powershell#ncrontab-expressions) for more information on how to set this. 
 ```json
 {
   "bindings": [
