@@ -86,8 +86,9 @@ If ($null -eq $saList) {
 Do {  
     Write-Host "`nSelect an Azure Storage Account" -ForegroundColor Yellow
     For ($i=0; $i -lt $saList.count; $i++) {
-    Write-Host "  $i)`t$($saList[$i])"
-}  
+        Write-Host "  $i)`t$($saList[$i])"
+    }
+
     [string]$saItem = Read-Host " "
     $saSelection = $saList[$saItem]
 }
@@ -115,6 +116,7 @@ Do {
     For ($i=0; $i -lt $tableList.count; $i++) {
         Write-Host "  $i)`t$($tableList[$i].Name)"
     }
+    
     [string]$tableItem = Read-Host " "
     $tableSelection = ($tableList[$tableItem])
 }
