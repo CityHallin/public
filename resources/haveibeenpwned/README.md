@@ -24,5 +24,4 @@ Processing query results
 
 WARNING: Password found in HIBP database and is compromised. Do NOT use this password
 Number of times this password has been seen by HIBP: 9636205
-
  ```

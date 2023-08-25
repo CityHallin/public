@@ -12,7 +12,7 @@ Microsoft has a nifty feature where you can create a clickable button on your we
 1. Create an ARM JSON Template of the resources you want to build. The URL of the JSON template must be publically reachable in order for the deployment button to function correctly. For this example, I will use the [template.json](https://raw.githubusercontent.com/CityHallin/public/main/resources/azure/button_deployment/templates/template.json) from my GitHub repo which has a URL that is publically reachable. 
 
 2. The URL of the JSON template must be formatted correctly so we can create a brand new deployment URL that will work with the deployment button. In this example, use the PowerShell below to format and create the final deployment URL.
-```
+```powershell
 #Raw URL from GitHub
 $rawURL = "https://raw.githubusercontent.com/CityHallin/public/main/resources/azure/button_deployment/templates/template.json"
 
@@ -32,7 +32,7 @@ https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.github
 ```
 
 4. Next, I will create a hyperlink in this README file that will reference the Azure Deployment Button from Microsoft. That button image file is located at **https://aka.ms/deploytoazurebutton**. The format is below:
-```
+```markdown
 #Format
 [![Deploy to Azure](IMAGE URL REFERENCE)](FINAL DEPLOYMENT URL YOU CREATED)
 

@@ -26,7 +26,7 @@ The following resources will be required for this project:
 1. Download and install the [Azure Functions Core Tool](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=windows%2Cportal%2Cv2%2Cbash&pivots=programming-language-powershell#install-the-azure-functions-core-tools). We will use this a little later to help create and push functions into the Azure Function App from your local machine.
 
 2. Open PowerShell and run the following command to make sure the Azure Functions Core Tool is running correctly. You should see a version number appear. You may have to re-start your PowerShell console for the changes to take effect. 
-```
+```powershell
 func --version
 ```
 <img src="./readme-files/func-version.png" width="300px">
@@ -35,18 +35,18 @@ func --version
 
 3. Install the PowerShell Az module set. Use the code below and select "A" when prompted. This will take several minutes. 
 
-```
+```powershell
 Install-Module -Name Az
 ```
 
 4. Run the following to log into your Azure Subscription.
-```
+```powershell
 Connect-AzAccount -SubscriptionName "ENTER YOUR SUBSCRIPTION NAME HERE"
 ```
 
 5. Choose an Azure region you'd like to deploy these project Azure resources into. In this example, I will be using **South Central US**. A list of US regions are below. Use your selected region for all of your deplopyments in this project to keep things simple. 
 
-```
+```powershell
 displayName      name
 -----------      ----
 Central US       centralus
@@ -61,7 +61,7 @@ West US 3        westus3
 ```
 6. First, we need to create some variables our PowerShell will use during the project. I have filled these out with the entries I will use as an example, but replace these with your own entries. The last command will create a new Azure Resource Group for this project. 
 
-```
+```powershell
 #Replace variables below with your own entry. 
 #Azure Resource Group name
 $resourceGroupName = "iot"
@@ -83,7 +83,7 @@ $functionAppName = "cityhallinfa"
 New-AzResourceGroup -Name $resourceGroupname -Location $region
 ```
 7. Run the following to create an Azure IoT Hub that will be used to receive messages from your physical IoT device. The name of the Azure IoT Hub must be something globally unique that no one else has in use.
-```
+```powershell
 #Create Azure IoT Hub Instance
 New-AzIotHub -ResourceGroupName $resourceGroupName `
  -Name $iotHubName `
@@ -93,12 +93,12 @@ New-AzIotHub -ResourceGroupName $resourceGroupName `
 ```
 
 8. Run the following to fetch the FQDN hostname of your newly created IoT Hub. Keep this FQDN hostname info as we will use it later.
-```
+```powershell
 #Gather Azure IoT Hub Info
 (Get-AzIotHub -ResourceGroupName $resourceGroupName -Name $iotHubName | Select-Object -ExpandProperty Properties).HostName
 ```
 9. Run the following to create a device profile in your Azure IoT Hub called **button1**. After it is created, you will see the new device profile in your Azure IoT Hub Device menu list. Clicking into the device will allow you to access the device keys needed for the device to authenticate to your Azure IoT Hub. Take note of the **Device ID** and its **Primary Key** as we will need these later.
-```
+```powershell
 #Create a device profile in your Azure IoT Hub Instance
 Add-AzIotHubDevice -ResourceGroupName $resourceGroupName `
  -IotHubName $iotHubName `
@@ -120,7 +120,7 @@ Add-AzIotHubDevice -ResourceGroupName $resourceGroupName `
     - Azure IoT Hub Device Primary Key
 
     Make sure the IoT device sends the following JSON Payload in its HTTP POST:
-```
+```json
 {"claim":"12345"}
 ```    
 
@@ -129,7 +129,7 @@ Add-AzIotHubDevice -ResourceGroupName $resourceGroupName `
     - Create an Azure Function App that will use the Storage Account.
     - Setup a System-Managed Identity on the Azure Function App and assign it the Contributor role on the Azure Resource Group we created. This will be needed so the Function App can create other resources in your Resource Group.    
 
-```
+```powershell
 #Create Storage Account
 New-AzStorageAccount `
     -Name $stortageAccountName `
@@ -175,7 +175,7 @@ New-AzRoleAssignment `
 ```
 
 12. Run the following commands which will auto-create a new function project folder with supporting files, navigate inside that project folder, and create the needed PowerShell function files. 
-```
+```powershell
 #Initializes Function App Folder on your local machine
 func init function_project --powershell
 
@@ -190,7 +190,7 @@ func new --name iotfunction --template "IoT Hub (Event Hub)"
 
   
     **Make sure to update this script on line 19 with your Resource Group name and line 21 with your region you chose. I am using my Resource Group name of "iot" and location "southcentralus" for this example.**
-```
+```powershell
 #Parameters
 param($IoTHubMessages, $TriggerMetadata)
 
@@ -217,7 +217,7 @@ $umi = New-AzUserAssignedIdentity `
 Write-Output "User-Managed Identity created: $($umi.name)"
 ```
 14. Inside the .\function_project\iotfunction folder, you'll see a **function.json** file. Update this function.json file with the following and save it. This tells your function to use the  **iot_hub_connection** Function App app setting we configured in a previous step so your Function App knows where to listen for its Azure IoT Hub triggers.
-```
+```json
 {
   "bindings": [
     {
@@ -234,7 +234,7 @@ Write-Output "User-Managed Identity created: $($umi.name)"
 ```
 
 15. Inside the .\function_project folder, you'll see a **requirements.ps1** file. Update this requirements.ps1 file with the following and save it. This tells your function it needs to download certain PowerShell modules that it will use.
-```
+```powershell
 # This file enables modules to be automatically managed by the Functions service.
 # See https://aka.ms/functionsmanageddependency for additional information.
 #
@@ -247,7 +247,7 @@ Write-Output "User-Managed Identity created: $($umi.name)"
 ```
 
 16. Make sure your PowerShell console is in the parent **function_project** directory holding all your function files. Run the following to push all of your function files to the Azure Function App. You should see the function in your Azure Function App after it completes. 
-```
+```powershell
 #Navigate into that Function Folder
 cd function_project
 
@@ -298,7 +298,7 @@ Setup instructions for the Texxmo IoT WiFi button.
 - Click on the **WIFI** menu and enter a WIFI network and password the button can use to get an internet connection
 - Click on the **IP Configuration** and keep your network defaults
 - Click on the **User JSON** menu and enter the JSON below. The IoT button will send this JSON data to the Azure Function. The Azure Function App will look at this JSON data and if it does not match the below code, the script will not perform any function. We use this as a very small security feature. 
-```
+```json
 {"claim":"12345"}
 ```
 - Save the configuration

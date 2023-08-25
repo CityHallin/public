@@ -21,7 +21,7 @@ The following resources will be required for this project:
 - Download and install the [Azure Functions Core Tool](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=windows%2Cportal%2Cv2%2Cbash&pivots=programming-language-powershell#install-the-azure-functions-core-tools). We will use this a little later to help create and push functions into the Azure Function App from your local machine.
 
 - Open PowerShell and run the following command to make sure the Azure Functions Core Tool is running correctly. You should see a version number appear. You may have to re-start your PowerShell console for the changes to take effect. 
-```
+```powershell
 func --version
 ```
 <img src="./readme-files/func-version.png" width="300px">
@@ -30,17 +30,17 @@ func --version
 
 - Install the PowerShell Az module set. Use the code below and select "A" when prompted. This will take several minutes. 
 
-```
+```powershell
 Install-Module -Name Az
 ```
 
 - Run the following to log into your Azure Subscription.
-```
+```powershell
 Connect-AzAccount -SubscriptionName "ENTER YOUR SUBSCRIPTION NAME HERE"
 ```
 - Choose an Azure region you'd like to deploy these project Azure resources into. In this example, I will be using **South Central US**. A list of US regions are below. Use your selected region for all of your deplopyments in this project to keep things simple. 
 
-```
+```powershell
 displayName      name
 -----------      ----
 Central US       centralus
@@ -55,7 +55,7 @@ West US 3        westus3
 ```
 - First, we need to create some variables our PowerShell will use during the project. I have filled these out with the entries I will use as an example, but replace these with your own entries. The last command will create a new Azure Resource Group for this project. 
 
-```
+```powershell
 #Replace variables below with your own entries. 
 #Azure Resource Group name
 $resourceGroupName = "kvtest"
@@ -78,7 +78,7 @@ $functionAppName = "cityhallinkvfa"
 New-AzResourceGroup -Name $resourceGroupname -Location $region
 ```
 - Run the following to create your Azure Key Vault. This Key Vault will use Azure RBAC to grant Key Vault rights instead of the Key Vault Access Policies. 
-```
+```powershell
 #Create Azure Key Vault
 New-AzKeyVault `
     -VaultName $keyVaultname `
@@ -89,7 +89,7 @@ New-AzKeyVault `
 ```
 
 - Run the following to create an Azure Storage Account and Function App. The Function App will have a System-Managed Identity that will be given access to the Key Vault to adjust secrets. Will also allow your user access to the Key Vault. 
-```
+```powershell
 #Create Storage Account
 New-AzStorageAccount `
     -Name $stortageAccountName `
@@ -132,7 +132,7 @@ New-AzRoleAssignment `
 ```
 - Run the following to create a new secret called **securepassword** in the Key Vault that will expire in 60 days.
 
-```
+```powershell
 #Create new secure string
 $characterSet = "!@#%&0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 $newSecret = ($characterSet.tochararray() | Sort-Object {Get-Random})[0..20] -join ''
@@ -149,7 +149,7 @@ Set-AzKeyVaultSecret `
 ```
 
 - Run the following commands which will auto-create a new function project folder with supporting files, navigate inside that project folder, and create the needed PowerShell function files. 
-```
+```powershell
 #Initializes Function App Folder on your local machine
 func init function_project --powershell
 
@@ -161,9 +161,9 @@ func new --name kvfunction --template "Timer trigger"
 ```
 - Inside the .\function_project\kvfunction folder, you'll see a **run.ps1** file. Update this run.ps1 file with the following and save it. This PowerShell script is the heart of your function and actually does the work of creating a new secure string and updating the key vault secret with the new secure string. You can add additional code as well to update other resources with this new secure string. This Azure Function App System-Managed Identity would just need access to that resource to replace its secret. 
 
-    **Update the $keyVaultName and $keyVaultSecretName variables in this script below with your information for this project.**
+    > Update the $keyVaultName and $keyVaultSecretName variables in this script below with your information for this project.
 
-```
+```powershell
 #Parameters
 param($Timer)
 $keyVaultName = "ENTER KEY VAULT NAME HERE"
@@ -195,7 +195,7 @@ Set-AzKeyVaultSecret -VaultName $keyVaultName -Name $keyVaultSecretName -SecretV
 <#  Additional Code  #>
 ```
 - Inside the .\function_project\kfunction folder, you'll see a **function.json** file. Update this function.json file with the following and save it. The schedule attribute is used to trigger this function at certain times (below is triggering this at 11:00pm on the 1st of every month). Review the Microsoft [Azure Trigger docs](https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer?tabs=python-v2%2Cin-process&pivots=programming-language-powershell#ncrontab-expressions) for more information on how to set this. 
-```
+```json
 {
   "bindings": [
     {
@@ -209,7 +209,7 @@ Set-AzKeyVaultSecret -VaultName $keyVaultName -Name $keyVaultSecretName -SecretV
 ```
 
 - Inside the .\function_project folder, you'll see a **requirements.ps1** file. Update this requirements.ps1 file with the following and save it. This tells your function it needs to download certain PowerShell modules that it will use.
-```
+```powershell
 # This file enables modules to be automatically managed by the Functions service.
 # See https://aka.ms/functionsmanageddependency for additional information.
 #
@@ -221,7 +221,7 @@ Set-AzKeyVaultSecret -VaultName $keyVaultName -Name $keyVaultSecretName -SecretV
 }
 ```
 - Make sure your PowerShell console is in the parent **function_project** directory holding all your function files. Run the following to push all of your function files to the Azure Function App. You should see the function in your Azure Function App after it completes. 
-```
+```powershell
 #Navigate into that Function Folder
 cd function_project
 
