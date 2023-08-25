@@ -17,7 +17,7 @@ Microsoft has a nifty feature where you can create a clickable button on your we
 $rawURL = "https://raw.githubusercontent.com/CityHallin/public/main/resources/azure/button_deployment/templates/template.json"
 
 #Format the raw URL to clean up characters
-$formattedURL = [uri]::EscapeDataString($url)
+$formattedURL = [uri]::EscapeDataString($rawURL)
 
 #Base URL that will be used for the deployment
 $baseURL = "https://portal.azure.com/#create/Microsoft.Template/uri/"
