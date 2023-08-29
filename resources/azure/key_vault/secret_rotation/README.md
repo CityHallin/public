@@ -1,23 +1,21 @@
-# Azure Key Vault Secret Rotation
+### Key Vault Secret Rotation
 
 1. [Overview](#overview)
-2. [Requirements](#requirements)
-3. [Project Instructions](projectinstructions)
-4. [Other Topics](#othertopics)
+1. [Requirements](#requirements)
+3. [Application Instructions](#appinstructions)
+4. [Automation Instructions](#autoinstructions)
+
 
 ## Overview <a name="overview"></a>
-Azure Key Vaults are a great place to keep secrets that can be fetched by applications, scripts, VMs, etc. so they are not stored in code or on assets. Many organizations tend to not apply an expiration date on these secrets, so the same values are used for long periods of time. Rotating your secrets is a good security practice to help keep endpoints safe in case a secret is leaked. This project demonstrates how automation in Azure can be used to rotate the secrets in a Key Vault and then place that secret inside of needed resources if able to. This project will go through setting up the sections via PowerShell to show the process for your understanding. Other methods can be used to deploy these types of workflows in bulk like Terraform, ARM templates, or Bicep deployments. 
 
-## Requirements <a name="requirements"></a>
-The following resources will be required for this project:
-- PowerShell and installed Az modules
-- Azure Resources
-    - Azure Tenant and Subscription   
-    - Azure Key Vault   
-    - Azure Function App
-    - Azure Storage Account (required for the Azure Function App)
+This project example demonstrates updating secrets or keys so current versions are not used for long periods. It will also show how to update Key Vaults and the application with the new versions of secrets and keys automatically so manual effort is avoided.
 
-## Project Instructions <a name="projectinstructions"></a>
+In this project, we'll build the beginnings of a simple application using an Azure Web App that saves data in an Azure Storage Account. The Azure Web App saves the Azure Storage Account's access key1 in its app settings as well as a Key Vault so the Web App can access the storage. We want to change the access key on a schedule so the same key version is not used for long periods. We will use a Function App to automate updating the Storage Account key1 as well as adding the new key to the Web App and Key Vault so it can access the Storage Account.
+
+This project is just a simple example of the process. This process can be made production ready with more advanced steps like doing primary and secondary key rotations in staggered schedules, having the application reference two sets of secrets/keys so one being upgraded at a time will not bring down the application, using SAS tokens instead of access keys, etc.
+
+## Requirements <a name="appinstructions"></a>
+
 - Download and install the [Azure Functions Core Tool](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local?tabs=windows%2Cportal%2Cv2%2Cbash&pivots=programming-language-powershell#install-the-azure-functions-core-tools). We will use this a little later to help create and push functions into the Azure Function App from your local machine.
 
 - Open PowerShell and run the following command to make sure the Azure Functions Core Tool is running correctly. You should see a version number appear. You may have to re-start your PowerShell console for the changes to take effect. 
@@ -25,7 +23,6 @@ The following resources will be required for this project:
 func --version
 ```
 <img src="./readme-files/func-version.png" width="300px">
-<br />
 <br />
 
 - Install the PowerShell Az module set. Use the code below and select "A" when prompted. This will take several minutes. 
@@ -36,119 +33,205 @@ Install-Module -Name Az
 
 - Run the following to log into your Azure Subscription.
 ```powershell
-$loginContext = Connect-AzAccount -SubscriptionName "ENTER YOUR SUBSCRIPTION NAME HERE"
+Connect-AzAccount -SubscriptionName "ENTER YOUR SUBSCRIPTION NAME HERE"
 ```
-- Choose an Azure region you'd like to deploy these project Azure resources into. In this example, I will be using **South Central US**. A list of US regions are below. Use your selected region for all of your deplopyments in this project to keep things simple. 
 
+## Application Instructions <a name="appinstructions"></a>
+- Let's first set up the example application. We'll need some variables our PowerShell will use to build our example application. Fill in these variables with the names you'd like to use. Make sure to use globally unique names for some resources.
 ```powershell
-displayName      name
------------      ----
-Central US       centralus
-East US          eastus
-East US 2        eastus2
-North Central US northcentralus
-South Central US southcentralus
-West Central US  westcentralus
-West US          westus
-West US 2        westus2
-West US 3        westus3
-```
-- First, we need to create some variables our PowerShell will use during the project. I have filled these out with the entries I will use as an example, but replace these with your own entries. The last command will create a new Azure Resource Group for this project. 
-
-```powershell
-#Replace variables below with your own entries. 
-#Azure Resource Group name
-$resourceGroupName = "kvtest"
-
-#Azure Region selected from above
+#General variables
 $region = "southcentralus"
 
-#Azure Key Vault name. Needs to be a globally unique 
-#name no one else has.
-$keyVaultname = "cityhallinkey"
-
-#Azure Storage Account name. Needs to be a globally unique 
-#name no one else has. Only alphanumeric characters.
-$stortageAccountName = "cityhallinkvsa"
-
-#Azure Function App name. Needs to be a globally unique name no one else has. 
-$functionAppName = "cityhallinkvfa"
-
-#Creates Azure Resource Group
-New-AzResourceGroup -Name $resourceGroupname -Location $region
+#Application variables
+$appResourceGroupName = "webapp4"
+$appKeyVaultName = "cityhallintestkv4" #must be globally unique
+$appStorageAccountName = "cityhallinsa4" #must be globally unique
+$appWebAppName = "cityhallinwebapp4" #must be globally unique
 ```
-- Run the following to create your Azure Key Vault. This Key Vault will use Azure RBAC to grant Key Vault rights instead of the Key Vault Access Policies. 
+- Run the following PowerShell to perform tasks below:
+    - Create an Azure Resource Group
+    - Create an Azure Key Vault
+    - Create an Azure Storage Account 
+    - Create an Azure App Service Plan
+    - Create an Azure Web App
+    - Allow your user access to the Azure Key Vault secrets
+    - Add Storage Account key1 as a secret in Azure Key Vault
+    - Add Storage Account key1 as an app setting value in the Web App
+
 ```powershell
-#Create Azure Key Vault
+#Creates Application Resources
+#Azure Resource Group
+New-AzResourceGroup `
+    -Name $appResourceGroupName `
+    -Location $region
+
+#Azure Key Vault
 New-AzKeyVault `
-    -VaultName $keyVaultname `
-    -ResourceGroupName $resourceGroupName `
+    -VaultName $appKeyVaultName `
+    -ResourceGroupName $appResourceGroupName `
     -Location $region `
     -Sku "Standard" `
     -EnableRbacAuthorization
-```
 
-- Run the following to create an Azure Storage Account and Function App. The Function App will have a System-Managed Identity that will be given access to the Key Vault to adjust secrets. Will also allow your user access to the Key Vault. 
-```powershell
-#Create Storage Account
+#Azure Storage Account
 New-AzStorageAccount `
-    -Name $stortageAccountName `
-    -ResourceGroupName $resourceGroupName `
+    -Name $appStorageAccountName `
+    -ResourceGroupName $appResourceGroupName `
     -Location $region `
-    -SkuName Standard_LRS
+    -SkuName "Standard_LRS"
 
-#Create Azure Function App
-New-AzFunctionApp `
-    -Name $functionAppName `
-    -ResourceGroupName $resourceGroupName `
+#Azure App Service Plan
+$appWebAppServicePlanInfo = New-AzAppServicePlan `
+    -ResourceGroupName $appResourceGroupName `
+    -Name "$appWebAppName-asp" `
     -Location $region `
-    -StorageAccountName $stortageAccountName `
-    -Runtime PowerShell
+    -Tier "Free"
 
-#Enable Managed ID on Function App
-Update-AzFunctionApp `
-    -Name $functionAppName `
-    -ResourceGroupName $resourceGroupName `
-    -IdentityType SystemAssigned `
-    -Force
+#Azure Web App
+New-AzWebApp `
+    -ResourceGroupName $appResourceGroupName `
+    -Name $appWebAppName `
+    -Location $region `
+    -AppServicePlan $($appWebAppServicePlanInfo.Name)
 
-#Get Azure Function App Info
-$functionAppResource = Get-AzResource `
-                         -Name $functionAppName `
-                         -ResourceGroupName $resourceGroupName `
-                         -ResourceType "Microsoft.Web/sites"
+#Get info for role assignments
+$loginContext = Get-AzContext
+$appKeyVaultInfo = Get-AzKeyVault `
+    -Name $appKeyVaultName `
+    -ResourceGroupName $appResourceGroupName
 
-#Add Azure Function App to Key Vault role assignment
-New-AzRoleAssignment `
-    -ObjectId $($functionAppResource.Identity.PrincipalId) `
-    -RoleDefinitionName "Key Vault Secrets Officer" `
-    -Scope $($keyVaultInfo.resourceid)
-
-#Allow your user access to the Key Vault
+#Add your user to Key Vault role assignment
 New-AzRoleAssignment `
     -SignInName $($loginContext.Account.Id) `
     -RoleDefinitionName "Key Vault Secrets Officer" `
-    -Scope $($keyVaultInfo.resourceid)
+    -Scope $($appKeyVaultInfo.resourceid)
+
+#Get current Storage Account Keys
+$appStorageAccountKeys = Get-AzStorageAccountKey `
+    -ResourceGroupName $appResourceGroupName `
+    -Name $appStorageAccountName
+
+#Add Storage Account key1 to Azure Key Vault secrets
+$secret =  ConvertTo-SecureString -String $($appStorageAccountKeys[0].Value) -AsPlainText -Force
+Set-AzKeyVaultSecret `
+    -VaultName $($appKeyVaultInfo.VaultName) `
+    -Name $($appStorageAccountKeys[0].KeyName) `
+    -SecretValue $secret
+
+#Add Storage Account key1 to Web App config setting
+$hashtable = @{}
+$hashtable["$($appStorageAccountKeys[0].KeyName)"]="$($appStorageAccountKeys[0].Value)"
+Set-AzWebApp `
+    -Name $appWebAppName `
+    -ResourceGroupName $appResourceGroupName `
+    -AppSettings $hashtable
+
 ```
-- Run the following to create a new secret called **securepassword** in the Key Vault that will expire in 60 days.
+- Your sample application should now be set up. The Storage Account key1 is saved in the Web App's Application Setting configuration as well as in the Key Vault as a secret.
+
+<img src="./readme-files/app_setting_before.png" width="700px">
+<br />
+
+<img src="./readme-files/key_vault_before.png" width="700px">
+<br />
+
+## Automation Instructions <a name="autoinstructions"></a>
+- Now that we have our sample application set up, let's work on the automation that will rotate this Storage Account key1 at scheduled times. We'll need some variables our PowerShell will use to build our automation. Fill in these variables with the names you'd like to use. Make sure to use globally unique names for some resources.
 
 ```powershell
-#Create new secure string
-$characterSet = "!@#%&0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-$newSecret = ($characterSet.tochararray() | Sort-Object {Get-Random})[0..20] -join ''
-$newSecretSecure = ConvertTo-SecureString -String $newSecret -AsPlainText -Force
-$Expires = (Get-Date).AddDays(60).ToUniversalTime()
-$newSecret = $null
+#General variables
+$region = "southcentralus"
 
-#Create new Key Vault secret with secure string
-Set-AzKeyVaultSecret `
-    -VaultName $keyVaultname `
-    -Name 'securepassword' `
-    -SecretValue $newSecretSecure `
-    -Expires $Expires
+#Application variables
+$automationResourceGroupName = "automation4"
+$automationStorageAccountName = "cityhallinauto4" #must be globally unique
+$automationFunctionAppName = "cityhallinfa4" #must be globally unique
 ```
+- Run the following PowerShell to perform tasks below:
+    - Create an Azure Resource Group
+    - Create an Azure Storage Account (required for the Function App)
+    - Create an Azure Function App
+    - Enabled System-Managed Identity on the Azure Function App
+    - Allow the Function App's System-Managed Identity to have access to the application Key Vault, Storage Account, and Web App
 
-- Run the following commands which will auto-create a new function project folder with supporting files, navigate inside that project folder, and create the needed PowerShell function files. 
+```powershell
+#Creates Automation Resources
+#Azure Resource Group
+New-AzResourceGroup `
+    -Name $automationResourceGroupName `
+    -Location $region
+
+#Azure Storage Account
+New-AzStorageAccount `
+    -Name $automationStorageAccountName `
+    -ResourceGroupName $automationResourceGroupName `
+    -Location $region `
+    -SkuName "Standard_LRS"
+
+#Azure Function App
+New-AzFunctionApp `
+    -Name $automationFunctionAppName `
+    -ResourceGroupName $automationResourceGroupName `
+    -Location $region `
+    -StorageAccountName $automationStorageAccountName `
+    -Runtime "PowerShell" `
+    -OSType "Windows"
+
+#Enable Managed ID on Function App
+Update-AzFunctionApp `
+    -Name $automationFunctionAppName `
+    -ResourceGroupName $automationResourceGroupName `
+    -IdentityType "SystemAssigned" `
+    -Force
+
+#Get info for role assignments
+$loginContext = Get-AzContext
+    #automation function app info
+    $automationFunctionAppInfo = Get-AzResource `
+        -Name $automationFunctionAppName `
+        -ResourceGroupName $automationResourceGroupName `
+        -ResourceType "Microsoft.Web/sites"
+    #application web app info
+    $appWebAppInfo = Get-AzResource `
+        -Name $appWebAppName `
+        -ResourceGroupName $appResourceGroupName `
+        -ResourceType "Microsoft.Web/sites"
+    #application storage account info
+    $appStorageAccountInfo = Get-AzResource `
+        -Name $appStorageAccountName `
+        -ResourceGroupName $appResourceGroupName `
+        -ResourceType "Microsoft.Storage/storageAccounts"
+    #application key vault info
+    $appKeyVaultInfo = Get-AzKeyVault `
+        -Name $appKeyVaultName `
+        -ResourceGroupName $appResourceGroupName
+
+#Add Azure Function App to Key Vault role assignment
+New-AzRoleAssignment `
+    -ObjectId $($automationFunctionAppInfo.Identity.PrincipalId) `
+    -RoleDefinitionName "Key Vault Secrets Officer" `
+    -Scope $($appKeyVaultInfo.resourceid)
+
+#Add Azure Function App to Storage Account role assignment
+New-AzRoleAssignment `
+    -ObjectId $($automationFunctionAppInfo.Identity.PrincipalId) `
+    -RoleDefinitionName "Storage Account Contributor" `
+    -Scope $($appStorageAccountInfo.resourceid)
+
+#Add Azure Function App to Web App role assignment
+New-AzRoleAssignment `
+    -ObjectId $($automationFunctionAppInfo.Identity.PrincipalId) `
+    -RoleDefinitionName "Website Contributor" `
+    -Scope $($appWebAppInfo.resourceid)
+```
+- Our automation resources are now set up. Next, we need to add some PowerShell code inside our Azure Function App that will perform the actions:
+    - Update the application Storage Account key1
+    - Save the new key1 to the application Key Vault
+    - Save the new key1 to the application Web App
+    
+<br />
+
+- Run the following commands which will create a new function project folder on your local machine with supporting files, navigate inside that project folder, and create the needed PowerShell function files.
 ```powershell
 #Initializes Function App Folder on your local machine
 func init function_project --powershell
@@ -157,44 +240,55 @@ func init function_project --powershell
 cd function_project
 
 #Create A Function PowerShell inside the Function App Folder using the IoT template
-func new --name kvfunction --template "Timer trigger"
+func new --name rotation_function --template "Timer trigger"
 ```
-- Inside the .\function_project\kvfunction folder, you'll see a **run.ps1** file. Update this run.ps1 file with the following and save it. This PowerShell script is the heart of your function and actually does the work of creating a new secure string and updating the key vault secret with the new secure string. You can add additional code as well to update other resources with this new secure string. This Azure Function App System-Managed Identity would just need access to that resource to replace its secret. 
+- Inside the .\function_project\rotation_function folder, you'll see a **run.ps1** file. Update this run.ps1 file with the following and save it. This PowerShell script is the heart of your function that updates the Storage Account key called "key1" as well as saving the new key into the Key Vault and Web App.
 
-    > Update the $keyVaultName and $keyVaultSecretName variables in this script below with your information for this project.
+> Update the #Parameters section of the script below with the names you used for your Azure application resources.
 
 ```powershell
 #Parameters
 param($Timer)
-$keyVaultName = "ENTER KEY VAULT NAME HERE"
-$keyVaultSecretName = "ENTER KEY VAULT SECRET NAME HERE"
-
-#Get the current universal time in the default string format.
-$currentUTCtime = (Get-Date).ToUniversalTime()
+$appResourceGroupName = "ENTER RESOURCE GROUP NAME HERE"
+$appKeyVaultName = "ENTER KEY VAULT NAME HERE"
+$appStorageAccountName = "ENTER STORAGE ACCOUNT NAME HERE"
+$appWebAppName = "ENTER WEB APP NAME HERE"
 
 #The 'IsPastDue' property is 'true' when the current function invocation is later than scheduled.
 if ($Timer.IsPastDue) {
     Write-Host "PowerShell timer is running late!"
 }
 
-#Generate new secret secure string
-$secretLength = 20
-Write-Output "Generating new $secretLength character secret value for Key Vault=$($keyVaultName), Secret name=$($keyVaultSecretName)"
-$characterSet = "!@#%&0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-$newSecretPlain = ($characterSet.tochararray() | Sort-Object {Get-Random})[0..20] -join ''
-$newSecretSecure = ConvertTo-SecureString -String $newSecretPlain -AsPlainText -Force
-$Expires = (Get-Date).AddDays(60).ToUniversalTime()
-Start-Sleep 5
+#Rotate Storage Account Key1
+Write-Output = "Resetting Storge Account Primary Key"
+$appStorageAccountKeys =  New-AzStorageAccountKey `
+    -ResourceGroupName $appResourceGroupName `
+    -Name $appStorageAccountName `
+    -KeyName "key1"
 
-#Set new Key Vault Secret Version
-Write-Output "Saving new secret value for Key Vault=$($keyVaultName), Secret name=$($keyVaultSecretName)"
-$Expires = (Get-Date).AddDays(60).ToUniversalTime()
-Set-AzKeyVaultSecret -VaultName $keyVaultName -Name $keyVaultSecretName -SecretValue $newSecretSecure -Expires $Expires
+#Save new key1 to the Key Vault
+Write-Output = "Adding Storge Account Primary Key to Key Vault"
+$secret =  ConvertTo-SecureString -String $($appStorageAccountKeys.keys[0].Value) -AsPlainText -Force
+$keyVaultUpdate = Set-AzKeyVaultSecret `
+    -VaultName $appKeyVaultName `
+    -Name "key1" `
+    -SecretValue $secret
 
-#Add additional code here to apply this new secret to other apps or resources
-<#  Additional Code  #>
+#Save new key1 to the Web App config
+Write-Output = "Adding Storge Account Primary Key to Web App configs"
+$hashtable = @{}
+$hashtable["key1"]="$($appStorageAccountKeys.keys[0].Value)"
+$webAppUpdate = Set-AzWebApp `
+    -Name $appWebAppName `
+    -ResourceGroupName $appResourceGroupName `
+    -AppSettings $hashtable
+
+#Complete output
+$keyPrefix = $($appStorageAccountKeys.keys[0].Value).SubString(0,5)
+Write-Output = "Complete. New Key Prefix: $($keyPrefix)"
 ```
-- Inside the .\function_project\kvfunction folder, you'll see a **function.json** file. Update this function.json file with the following and save it. The schedule attribute is used to trigger this function at certain times (below is triggering this at 11:00pm on the 1st of every month). Review the Microsoft [Azure Trigger docs](https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer?tabs=python-v2%2Cin-process&pivots=programming-language-powershell#ncrontab-expressions) for more information on how to set this. 
+
+- Inside the .\function_project\rotation_function folder, you'll see a **function.json** file. Update this function.json file with the following and save it. The schedule attribute is used to trigger this function at certain times (below is triggering this at 11:00pm on the 1st of every month). Review the Microsoft [Azure Trigger docs](https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer?tabs=python-v2%2Cin-process&pivots=programming-language-powershell#ncrontab-expressions) for more information on how to set this. 
 ```json
 {
   "bindings": [
@@ -218,6 +312,8 @@ Set-AzKeyVaultSecret -VaultName $keyVaultName -Name $keyVaultSecretName -SecretV
     # To use the Az module in your function app, please uncomment the line below.
      'Az.Accounts' = '2.*'
      'Az.KeyVault' = '4.*'
+     'Az.Storage' = '5.*'
+     'Az.Websites' = '3.*'
 }
 ```
 - Make sure your PowerShell console is in the parent **function_project** directory holding all your function files. Run the following to push all of your function files to the Azure Function App. You should see the function in your Azure Function App after it completes. 
@@ -226,13 +322,26 @@ Set-AzKeyVaultSecret -VaultName $keyVaultName -Name $keyVaultSecretName -SecretV
 cd function_project
 
 #Push code to the Azure Function App
-func azure functionapp publish $functionAppName
+func azure functionapp publish $automationFunctionAppName
 ```
-- Now that the function is deployed, it will trigger on your schedule updating the Azure Key Vault secret on an interval. 
+- Our automation is done. To test this, navigate to your automation Azure Function App in the Azure Portal and click into your function. 
 
+<img src="./readme-files/function_app_name.png" width="700px">
+<br />
 
-## Other Topics <a name="othertopics"></a>
-### Event Grid
-- Azure Key Vaults generate events when certain actions happen. For example, when a secret is about to expire or expires, events are generated. An Azure Event Grid System Topic can be created that will expose these Key Vault events. An Event Subscription can be created off the Event Grid System Topic to then trigger something like an Azure Function App that can perform actions once the event happens.
+- Navigte to **Code + Test > Test/Run > Click the Run** button.
 
-- Azure Event Grids can be used to create Azure Monitor Alerts. In the Azure Event Grid System Topic, navigate to its Diagnostic Settings menu option and set it to forward logs to an Azure Log Analytics Workspace. Create an Azure Monitor Alert to scan the Log Analytics Workspace for specific Key Vault events. You can trigger things like email alerts, Azure Function App triggers, etc. when the alerts fires. 
+<img src="./readme-files/function_app_test.png" width="900px">
+<br />
+
+- After the run completes, if it is successful, you see the following output with the first 5 characters of the key that was changed: **Complete. New Key Prefix: #####**. The Key Vault and Web App should show this new key. 
+
+<img src="./readme-files/function_app_done.png" width="900px">
+<br />
+
+<img src="./readme-files/key_vault_after.png" width="400px">
+<br />
+
+<img src="./readme-files/app_setting_after.png" width="600px">
+<br />
+
