@@ -57,36 +57,3 @@ $header = @{
     'x-ms-date'  = $time  
 }
 $request = Invoke-RestMethod -Method GET -Uri $url -Headers $header -ContentType "application/json"
-
-
-
-
-
-
-
-
-
-
-
-
-
-#Get Storrage Account access allowing your user 
-#to interact with the Storage Account via PowerShell
-$saContext = New-AzStorageContext -StorageAccountName $saName -StorageAccountKey $(ConvertFrom-SecureString $saAccessKeySecure -AsPlainText)
-
-#Build SAS URL
-#List of Permissions available (https://learn.microsoft.com/en-us/rest/api/storageservices/create-account-sas?redirectedfrom=MSDN#blob-service)
-$sasURL = New-AzStorageAccountSASToken `
-    -Service Blob `
-    -ResourceType Service,Container,Object `
-    -Permission "rlw" `
-    -ExpiryTime (Get-Date).AddDays(1) `
-    -Context $saContext
-
-#Get Storage Account FQDN
-$saFQDN = Get-AzStorageAccount -ResourceGroupName $saRGName -Name $saName
-$
-
-
-
-
