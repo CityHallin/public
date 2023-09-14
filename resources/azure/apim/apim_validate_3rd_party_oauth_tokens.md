@@ -1,7 +1,6 @@
 
 # Azure API Management Validate 3rd Party Oauth Tokens
 
-
 1. [Overview](#overview)
 2. [Requirements](#requirements)
 3. [Project Instructions](#projectinstructions)
@@ -391,7 +390,7 @@ Invoke-RestMethod: Response status code does not indicate success: 401 (Forbidde
 ```
 Invoke-RestMethod: Response status code does not indicate success: 403 (Forbidden Twitch Token).
 ```
-- You have completed this project and demonstrated how to protect backend APIs using 3rd-party Identity Providers. Make sure to remove and revoke any Azure and Twitch resources you will not need anymore. 
+- You have completed this project demonstrating how to protect backend APIs using 3rd-party Identity Providers. Make sure to remove and revoke any Azure and Twitch resources you will not need anymore. This example project uses Twitch's simple [OAuth Client Credentials Flow](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/#client-credentials-grant-flow) where the OAuth tokens are simple and only contain limit information to filter access on. There are more feature-rich workflows out there like OpenID Connect allowing for JWT access tokens that hold more information where APIM inbound policies can claim limit access based on properties audiences, groups, location, etc. 
 
 
 ## Inbound Processing Policy Details <a name="policydetails"></a>
