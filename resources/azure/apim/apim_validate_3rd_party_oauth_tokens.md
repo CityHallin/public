@@ -1,11 +1,15 @@
 
 # Azure API Management Validate 3rd Party Oauth Tokens
 
+
 1. [Overview](#overview)
 2. [Requirements](#requirements)
 3. [Project Instructions](#projectinstructions)
 3. [Inbound Processing Policy Details](#policydetails)
 
+<br />
+<img src="./readme-files/apim-oauth-diag.png" width="800px">
+<br />
 
 ## Overview <a name="overview"></a>
 Azure API Management Services (aka APIM) can be used as a gateway service your backend APIs can sit behind. This service provides advanced features like protecting your APIs via different levels of authentication. In this example, we will be using OAuth authentication access tokens from Twitch.tv's Identity Provider to protect our backend Function App APIs. We will only allow a specific Twitch App identity to be able to submit requests to our backend APIs. This project will use manual methods for training purposes but in the future, automated deployment, Infrastructure-as-Code, and other methods can be used for more robust deployments. 
