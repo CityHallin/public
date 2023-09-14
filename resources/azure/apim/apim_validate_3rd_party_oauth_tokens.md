@@ -200,14 +200,14 @@ func azure functionapp publish $functionAppName
 <br />
 
 - Create (2) Named Values. One will be used to hold the Twitch URL that we will send OAuth validation requests to (this is public data and non-sensitive). the other will be your Twitch App Client ID you saved from earlier.
-```javascript
+```
 Name: authorizer-url
 Display Name: authorizer-url
 Type: Plain
 Value: https://id.twitch.tv/oauth2/validate
 ```
 
-```javascript
+```
 Name: twitch-client-id
 Display Name: twitch-client-id
 Type: Plain
