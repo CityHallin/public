@@ -10,7 +10,7 @@
 ## Overview <a name="overview"></a>
 Azure API Management Services (aka APIM) can be used as a gateway service your backend APIs can sit behind. This service provides advanced features like protecting your APIs via different levels of authentication. In this example, we will be using OAuth authentication access tokens from Twitch.tv's Identity Provider to protect our backend Function App APIs. We will only allow a specific Twitch App identity to be able to submit requests to our backend APIs. This project will use manual methods for training purposes but in the future, automated deployment, Infrastructure-as-Code, and other methods can be used for more robust deployments. 
 
-All the Ids and Secerts in this project used as examples are no longer validate or revoked. 
+> All the Ids and Secerts in this project used as examples are no longer validate or revoked. 
 
 ## Requirements <a name="requirements"></a>
 The following resources will be required for this project:
