@@ -4,7 +4,6 @@
 1. [Overview](#overview)
 2. [My Learning Process](#process)
 3. [Process Example](#example)
-3. [Tools and Tips](#toolstips)
 
 ### Overview <a name="overview"></a>
 Being in the tech industry for a number of years, it is no secret that we are always learning. It feels like every month I'm saying to myself, "The organization needs what? I've never done that before." This brings up the question of, do you know how you like to learn new things? Learning how to learn I think is a skill set all its own that will directly contribute to your success in technical positions.
