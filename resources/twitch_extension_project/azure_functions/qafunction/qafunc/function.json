@@ -1,0 +1,27 @@
+{
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "Request",
+      "methods": [
+        "get",
+        "post"
+      ]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "Response"
+    },
+    {
+      "name": "dbCheck",
+      "type": "sql",
+      "direction": "in",
+      "commandText": "SELECT TOP 1 * FROM dbo.<DB TABLE NAME> WHERE completed='0' ORDER by id;",
+      "commandType": "Text",
+      "connectionStringSetting": "<FUNCTION APP CONNECTION STRING NAME>"
+    }
+  ]
+}
