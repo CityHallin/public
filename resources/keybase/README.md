@@ -19,12 +19,12 @@ Keybase.io is a service that centers around secure chat services, PGP messaging,
 ```
 My Keybase Username = cityhall
 ```
-<img src="./readme-files/user_search.png" width="600px">
+<img src="./readme-files/user_search.png" width="800px">
 <br />
 
 - Start chatting with me.
 
-<img src="./readme-files/user_chat.png" width="600px">
+<img src="./readme-files/user_chat.png" width="800px">
 <br />
 
 ## You Do NOT Have a Keybase Account <a name="accountno"></a>
@@ -36,7 +36,7 @@ My Keybase Username = cityhall
 ```
 My Keybase Username = cityhall
 ```
-<img src="./readme-files/ec_search.png" width="600px">
+<img src="./readme-files/ec_search.png" width="800px">
 <br />
 
 <img src="./readme-files/profile_view.png" width="500px">
@@ -44,10 +44,10 @@ My Keybase Username = cityhall
 
 - Enter your text data into the **Message to encrypt** section and click the **Encrypt** button. This will convert your data into an encrypted format. 
 
-<img src="./readme-files/ec_encrypt.png" width="600px">
+<img src="./readme-files/ec_encrypt.png" width="800px">
 <br />
 
-<img src="./readme-files/ec_encrypt_done.png" width="600px">
+<img src="./readme-files/ec_encrypt_done.png" width="800px">
 <br />
 
 - Copy this newly encrypted data **in its entirety** and send it to me via other means like email, IM, etc. (example below sending it to me via Discord). My Keybase user will be the only one that has the ability to open it. 
