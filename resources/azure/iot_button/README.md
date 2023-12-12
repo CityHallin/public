@@ -292,7 +292,7 @@ Setup instructions for the Texxmo IoT WiFi button.
 
 3. Enter the button config mode by holding down the button on the Texxmo for 3-6 seconds until you see the light flashing orange and then release the button. The light will continue to flash orange and then will start flashing red. The red flashing lets you know the button is in config mode. In config mode, the button will start broadcasting its own WiFi network with the name format "ESP:##:##:##". On your laptop or desktop join this wireless network. You will need the following settings. 
 
-- Navigate to IP address http://196.168.4.1. This will take you to the Texxmo button home page
+- Navigate to IP address http://192.168.4.1. This will take you to the Texxmo button home page
 - Click on the **IoT Hub Configuration** menu and enter the IoT Hub FQDN, device ID, and device key. 
 - Click on the **TimeServer** menu and enter a time server
 - Click on the **WIFI** menu and enter a WIFI network and password the button can use to get an internet connection
