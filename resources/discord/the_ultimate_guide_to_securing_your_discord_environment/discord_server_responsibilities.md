@@ -51,6 +51,13 @@ Administrators and Moderators have responsibilities on Discord servers to foster
 - Members that become Moderators should be vetted outside of Discord or with a more personal interaction (video call, other forms of media, etc.) before being promoted to Moderators. 
 - Document the processes and tasks Moderators will be performing. For example, how to kick/ban members or what to do during an malicious incident. This way, Moderators will all be completing tasks the same way.
 - Discord has some features to report user accounts or harmful posts. That being said, the overall feel from Discord is Moderators are given the responsibility to govern their own Discord servers and set their own server rules accordingly.
+- During a security event, servers have a new beta feature to temporarily halt member joins and DMs  over a period of time. Right click on the Discord server > Security Actions to use this feature. 
+
+<img src="./readme-files/security_actions.png" width="200px">
+<br />
+
+<img src="./readme-files/security_actions_window.png" width="500px">
+<br />
 
 
 ## Monitoring <a name="monitoring"></a>
