@@ -5,7 +5,8 @@
 - [Server Management](#servermanagement)
 - [Bot Management](#botmanagement)
 - [Product Management](#productmanagement)
-- [Moderator/Admin Tips](#modtips)
+- [Administrator Permission](#adminpermission)
+- [Tips](#modtips)
 - [Monitoring](#monitoring)
 
 Administrators and Moderators have responsibilities on Discord servers to foster an enjoyable community environment and support/protect their members. As Discord server membership gets larger, more of these best practice will be relevant, especially when monetized servers. 
@@ -43,7 +44,14 @@ Administrators and Moderators have responsibilities on Discord servers to foster
     - Product feature and uploads
     - Monetization
 
-### Moderator/Admin Tips <a name="modtips"></a>
+### Administrator Permission <a name="adminpermission"></a>
+- When Discord servers are created, the account that created it is assigned the **Server Owner** classification. On a new server, this is called out by a **Crown Icon** next to the user account in the member list. If this account will be deleted or will be leaving the server, make sure to [Transfer the Server Owner](https://support.discord.com/hc/en-us/articles/216273938-How-do-I-transfer-server-ownership-) classification to another Administrator on this server. 
+
+- For larger servers, it would be a good idea to have at least one other account that has the Administrator permission for redundancy. Use the [Create Administrators Role](https://support.discord.com/hc/en-us/articles/360000516572-Server-Ownership-The-Crown-Icon) process to accomplish this. This should also remove the crown icon from being seen by regular members (logging into the Server Owner account, that account may still see the crown icon in their view of the member list). This role should be on the top of the role hierarchy list. Make sure to limit the amount of privileged members in this Administrators role (recommend only 2 members at most). This Administrators role is not meant for Moderators which should be a separate role with far less permissions geared toward moderation tasks. 
+
+- It is a good security practice to have a separate account that is in this Administrator Role with the Administrator permissions. This separate Discord account is only used when admin level access is needed on the server and for no other purpose. This account should have a very secure password, 2FA enabled, 2FA backup codes saved in a secure location, and a verified phone number attach to it. Keep in mind that Discord currently does not allow VOIP or landline numbers to be used. An actual phone carrier phone number will need to be used. 
+
+### Tips <a name="modtips"></a>
 - Administrator and Moderator account passwords should not be used for any other services (passwords should be unique to this Discord account).
 - Administrators and Moderators should change their passwords on a regular basis.
 - Administrators and Moderators should use strong authentication like 2FA or future features like security/pass keys.
