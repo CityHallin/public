@@ -14,6 +14,10 @@
 - Community
     - [Overview](#communityoverview)
     - [Onboarding](#communityonboarding)
+    - [Server Insights](#serverinsights)
+    - [Discovery](#discovery)
+- Monetization
+    - [Enable Monetization](#monetization)
 - Member Management
     - [Members](#members)
     - [Invites](#invites)
@@ -191,8 +195,21 @@ The settings below are geared toward Discord servers that are configured as a Co
 <img src="./readme-files/onboarding_review.png" width="600px">
 <br />
 
-## Member Management
+### Server Insights <a name="serverinsights"></a>
+- Server Insights can be accessed via your [Discord Developer](https://discord.com/developers/servers) website in the Server Insights section. Your server needs a minimum number of members in order for some analytics to be visible. This feature does have some limitations. There are other verified bots that can be used for more in-depth server analytics. 
 
+### Discovery <a name="discovery"></a>
+- Server Administrators may allow their server to be discoverable by anyone as long as it meets certain requirements (safety configurations, over 1,000 members, age requirements, moderator configurations, etc.). Review Discord's article on the [Discord Server Discovery](https://support.discord.com/hc/en-us/articles/360023968311) feature. 
+
+## Monetization
+
+### Enable Monetization <a name="monetization"></a>
+- Discord servers allow for monetization features to be built and members subscribe to those premium features or perks. If your server is enabled for monetization, Administrators and Moderators will have to manage digital projects and perks which come with their own responsibilities. When servers are monetized, this increases the attractiveness to bad actors which justifies more security and management.
+    - [Discord Monetization Terms](https://support.discord.com/hc/en-us/articles/5330075836311)
+    - [Discord Monetization Policy](https://support.discord.com/hc/en-us/articles/10575066024983)
+    - [Discord Subscription Information](https://discord.com/serversubscriptions)
+
+## Member Management
 
 ### Members <a name="members"></a>
 - Central page for administering members.
