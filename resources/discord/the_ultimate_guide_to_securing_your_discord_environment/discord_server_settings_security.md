@@ -166,7 +166,8 @@ The settings below are geared toward Discord servers that are configured as a Co
 - Add a description of what the server is for.
 
 ### Onboarding <a name="communityonboarding"></a>
-- If you are not using an outside mechanism or bot for member onboarding, it is highly recommend to set up the native Discord onboarding. 
+- The Onboarding feature is mainly for a server guide that helps new members find their way on this newly joined server. This may be disabled if you have another mechanism for guiding users around the server or another external onboarding processes.
+- If you are not using an outside mechanism or bot for member onboarding, it is highly recommend to set up the native Discord onboarding to guide users around the server. 
 - The Discord Onboarding will first check if your Safety Setup is at a minimal level needed for community servers and will let you know if anything needs to be changed. 
 
 <img src="./readme-files/onboarding_safety_check.png" width="600px">
