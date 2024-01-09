@@ -2,6 +2,7 @@
 
 - [Discord Server Management Responsibilities](./discord_server_responsibilities.md)
 - [Discord Server Settings and Security](./discord_server_settings_security.md)
+- [Discord Server Member Onboarding](./discord_server_onboarding.md)
 - [Discord Server Channels](./discord_server_channels.md)
 - [Discord Personal User Settings](./discord_personal_user_settings.md)
 
