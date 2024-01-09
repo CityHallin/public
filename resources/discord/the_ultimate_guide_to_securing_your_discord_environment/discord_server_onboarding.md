@@ -81,7 +81,7 @@ Here is an example guide to enabling a well-rounded member onboard process using
 <img src="./readme-files/native-onboard3.png" width="250px">
 <br />
 
-- The account can post in these channels, but only non-members can see it. Also the message history is turned off so each time their Discord client/session refreshes, the channel clears their history in the channel. 
+- The non-member account can post in these channels, but only non-members and Administrators can see it. The Read History permission is disabled as well. This means that every time the non-member account session or client refreshes, they lose visibility to all past messages in those non-member jail channels. 
 
 <img src="./readme-files/non_member_jail_example.gif" width="600px">
 <br />
