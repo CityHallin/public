@@ -1,0 +1,26 @@
+{
+    "properties": {
+        "displayName": "[Custom] Storage Account Disable Default Share Permission",
+        "policyType": "Custom",
+        "mode": "All",
+        "description": "If the Storage Account attribute called defaultSharePermission is present, its value should not contain the string StorageFileDataSmbShare",
+        "parameters": {},
+        "policyRule": {
+            "if": {
+                "allOf": [
+                {
+                    "field": "type",
+                    "equals": "Microsoft.Storage/storageAccounts"
+                },
+                {
+                    "field": "Microsoft.Storage/storageAccounts/azureFilesIdentityBasedAuthentication.defaultSharePermission",
+                    "contains": "StorageFileDataSmbShare"
+                }
+                ]
+      },
+            "then": {
+                "effect": "deny"
+            }
+        }
+    }
+  }
