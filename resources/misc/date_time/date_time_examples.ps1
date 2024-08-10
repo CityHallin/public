@@ -43,8 +43,8 @@ Get-Date -Format "T" #Long time
 Get-Date -Format "d" #Simple date
 "8/10/2024"
 
-Get-Date -Format "g"
-"8/10/2024 10:58 AM" #Simple date time
+Get-Date -Format "g" #Simple date time
+"8/10/2024 10:58 AM" 
 
 Get-Date -Format "u" #Universal sortable
 "2024-08-10 11:02:44Z"
