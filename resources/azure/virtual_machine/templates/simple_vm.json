@@ -9,7 +9,7 @@
               },
             "minLength": 3,
             "maxLength": 12,
-            "defaultValue": "test"            
+            "defaultValue": "testvm"
         },
         "vmSize": {
             "type": "string",
@@ -38,15 +38,14 @@
         "location": {
             "type": "string",            
             "metadata": {
-              "description": "Location for all resources (leaving the function '[resourceGroup().location]' will automatically use the Resource Group location.)"              
+              "description": "Location for all resources. Locations restricted due to DEV Bastion requirements"              
             },
-            "defaultValue": "[resourceGroup().location]"
-          },
-        "homeIPAddress": {
-            "type": "string",
-            "metadata": {
-                "description": "The IP address that will be added to the NSG rules allowing RDP access to the VM."
-              }            
+              "allowedValues": [
+                "northcentralus",
+                "westcentralus",
+                "westus"
+              ],
+            "defaultValue": "northcentralus"            
         },
         "autoShutdownNotificationEmail": {
             "type": "string",
@@ -78,6 +77,7 @@
     "variables": {
         "vnicName" : "[concat(parameters('vmName'), '-vnic')]",
         "pipName" : "[concat(parameters('vmName'), '-pip')]",
+        "bastionName" : "[concat(parameters('vmName'), '-bas')]",
         "vnetName" : "[concat(parameters('vmName'), '-vnet')]",
         "nsgName" : "[concat(parameters('vmName'), '-nsg')]"
     },
@@ -87,29 +87,7 @@
             "apiVersion": "2023-05-01",
             "name": "[variables('nsgName')]",
             "location": "[parameters('location')]",
-            "properties": {
-                "securityRules": [
-                    {
-                        "name": "RDP",
-                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', variables('nsgName'), 'RDP')]",
-                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
-                        "properties": {
-                            "protocol": "TCP",
-                            "sourcePortRange": "*",
-                            "destinationPortRange": "3389",
-                            "sourceAddressPrefix": "[parameters('homeIPAddress')]",
-                            "destinationAddressPrefix": "*",
-                            "access": "Allow",
-                            "priority": 100,
-                            "direction": "Inbound",
-                            "sourcePortRanges": [],
-                            "destinationPortRanges": [],
-                            "sourceAddressPrefixes": [],
-                            "destinationAddressPrefixes": []
-                        }
-                    }
-                ]
-            }
+            "properties": {}
         },
         {
             "type": "Microsoft.Network/publicIPAddresses",
@@ -154,6 +132,24 @@
                 "virtualNetworkPeerings": [],
                 "enableDdosProtection": false
             }
+        },
+        {
+            "apiVersion": "2023-09-01",
+            "type": "Microsoft.Network/bastionHosts",
+            "name": "[variables('bastionName')]",
+            "sku": {
+                "name": "Developer"
+            },
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+            ],
+            "properties": {
+                "virtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+                }
+            },
+            "tags": {}
         },
         {
             "type": "Microsoft.Compute/virtualMachines",
@@ -229,28 +225,6 @@
                         }
                     ]
                 }
-            }
-        },
-        {
-            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
-            "apiVersion": "2023-05-01",
-            "name": "[concat(variables('nsgName'), '/RDP')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
-            ],
-            "properties": {
-                "protocol": "TCP",
-                "sourcePortRange": "*",
-                "destinationPortRange": "3389",
-                "sourceAddressPrefix": "[parameters('homeIPAddress')]",
-                "destinationAddressPrefix": "*",
-                "access": "Allow",
-                "priority": 100,
-                "direction": "Inbound",
-                "sourcePortRanges": [],
-                "destinationPortRanges": [],
-                "sourceAddressPrefixes": [],
-                "destinationAddressPrefixes": []
             }
         },
         {
