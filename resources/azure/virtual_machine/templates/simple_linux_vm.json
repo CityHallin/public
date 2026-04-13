@@ -5,11 +5,11 @@
         "vmName": {
             "type": "string",
             "metadata": {
-                "description": "Name of the Windows VM and prefix for all other resources (minimum character length 3, max character length 12)."
+                "description": "Name of the Azure VM"
               },
             "minLength": 3,
             "maxLength": 12,
-            "defaultValue": "testvm"
+            "defaultValue": "linuxVM"
         },
         "vmSize": {
             "type": "string",
@@ -17,11 +17,12 @@
                 "description": "Size of the VM"
               },
               "allowedValues": [
+                "Standard_B1ms",
                 "Standard_B2s",
                 "Standard_B2ms",
                 "Standard_D2s_v3"
               ],
-            "defaultValue": "Standard_B2s"            
+            "defaultValue": "Standard_B1ms"            
         },
         "vmUsername": {
             "type": "string",
@@ -29,10 +30,10 @@
                 "description": "Username for your VM."
               }          
         },
-        "vmPassword": {
-            "type": "securestring",
+        "sshPublicKey": {
+            "type": "string",
             "metadata": {
-                "description": "Password for your VM."
+                "description": "SSH public Key for default user."
               }          
         },
         "location": {
@@ -46,32 +47,6 @@
                 "westus"
               ],
             "defaultValue": "northcentralus"            
-        },
-        "autoShutdownNotificationEmail": {
-            "type": "string",
-            "metadata": {
-                "description": "Email address to receive alerts about VM auto-shutdown tasks"
-              }            
-        },
-        "autoShutdownTime": {
-            "type": "string",
-            "metadata": {
-                "description": "Time for the VM to auto-shutdown (24hr time format example: 23:00)"
-              },
-              "defaultValue": "23:00"
-        },
-        "autoShutdownTimeZone": {
-            "type": "string",
-            "metadata": {
-                "description": "Email address to receive alerts about VM auto-shutdown tasks"
-              },
-              "allowedValues": [
-                "Pacific Standard Time",
-                "Mountain Standard Time",
-                "Central Standard Time",
-                "Eastern Standard Time"
-              ],
-              "defaultValue": "Mountain Standard Time"
         }
     },
     "variables": {
@@ -107,7 +82,7 @@
         },
         {
             "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2023-05-01",
+            "apiVersion": "2024-10-01",
             "name": "[variables('vnetName')]",
             "location": "[parameters('location')]",
             "properties": {
@@ -168,13 +143,13 @@
                 },
                 "storageProfile": {
                     "imageReference": {
-                        "publisher": "MicrosoftWindowsServer",
-                        "offer": "WindowsServer",
-                        "sku": "2022-datacenter-azure-edition-hotpatch",
+                        "publisher": "canonical",
+                        "offer": "ubuntu-24_04-lts",
+                        "sku": "server",
                         "version": "latest"
                     },
                     "osDisk": {
-                        "osType": "Windows",
+                        "osType": "Linux",
                         "name": "[concat(parameters('vmName'), '_OsDisk')]",
                         "createOption": "FromImage",
                         "caching": "ReadWrite",
@@ -182,7 +157,7 @@
                             "storageAccountType": "Premium_LRS"                          
                         },
                         "deleteOption": "Delete",
-                        "diskSizeGB": 127
+                        "diskSizeGB": 30
                     },
                     "dataDisks": [],
                     "diskControllerType": "SCSI"
@@ -190,23 +165,24 @@
                 "osProfile": {
                     "computerName": "[parameters('vmName')]",
                     "adminUsername": "[parameters('vmUsername')]",
-                    "adminPassword": "[parameters('vmPassword')]",
-                    "windowsConfiguration": {
-                        "provisionVMAgent": true,
-                        "enableAutomaticUpdates": true,
-                        "patchSettings": {
-                            "patchMode": "AutomaticByPlatform",
-                            "automaticByPlatformSettings": {
-                                "rebootSetting": "IfRequired",
-                                "bypassPlatformSafetyChecksOnUserSchedule": false
-                            },
-                            "assessmentMode": "ImageDefault",
-                            "enableHotpatching": true
+                    "linuxConfiguration": {
+                        "disablePasswordAuthentication": true,
+                        "ssh": {
+                            "publicKeys": [
+                                {
+                                    "path": "[concat('/home/', parameters('vmUsername'), '/.ssh/authorized_keys')]",
+                                    "keyData": "[parameters('sshPublicKey')]"
+                                }
+                            ]
                         },
-                        "enableVMAgentPlatformUpdates": false
+                        "provisionVMAgent": true,
+                        "patchSettings": {
+                            "patchMode": "ImageDefault",
+                            "assessmentMode": "ImageDefault"
+                        }
                     },
                     "secrets": [],
-                    "allowExtensionOperations": true                 
+                    "allowExtensionOperations": true            
                 },
                 "securityProfile": {
                     "uefiSettings": {
@@ -289,30 +265,6 @@
                 "nicType": "Standard",
                 "auxiliaryMode": "None",
                 "auxiliarySku": "None"
-            }
-        },
-        {
-            "name": "[concat('shutdown-computevm-', parameters('vmName'))]",
-            "type": "Microsoft.DevTestLab/schedules",
-            "apiVersion": "2018-09-15",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
-            ],
-            "properties": {
-                "status": "Enabled",
-                "taskType": "ComputeVmShutdownTask",
-                "dailyRecurrence": {
-                    "time": "[parameters('autoShutdownTime')]"
-                },
-                "timeZoneId": "[parameters('autoShutdownTimeZone')]",
-                "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]",
-                "notificationSettings": {
-                    "status": "Enabled",
-                    "notificationLocale": "en",
-                    "timeInMinutes": "30",
-                    "emailRecipient": "[parameters('autoShutdownNotificationEmail')]"
-                }
             }
         }
     ]

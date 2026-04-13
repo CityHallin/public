@@ -4,7 +4,12 @@ This is a simple VM deployment in Azure. Click the button below to deploy this s
 - The VM will be behind an NSG allowing the addition of your public IP address for RDP access.
 - VM is configured with auto-shutdown tasks enabled.
 
-<br />
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FCityHallin%2Fpublic%2Fmain%2Fresources%2Fazure%2Fvirtual_machine%2Ftemplates%2Fsimple_vm.json)
+
+Simple Azure Windows VM:<br />
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FCityHallin%2Fpublic%2Fmain%2Fresources%2Fazure%2Fvirtual_machine%2Ftemplates%2Fsimple_windows_vm.json)
+
+
+Simple Azure Linux VM:<br />
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FCityHallin%2Fpublic%2Fmain%2Fresources%2Fazure%2Fvirtual_machine%2Ftemplates%2Fsimple_linux_vm.json)
 
